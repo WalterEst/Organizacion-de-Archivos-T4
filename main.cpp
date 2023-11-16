@@ -1,100 +1,93 @@
 #include <stdio.h>
 
-// Funcion para obtener el valor del contador desde un archivo
-int ObtenerContador() {
+// Definición de la estructura para representar un automóvil
+struct Automovil {
+    int id;
+    char marca[100];
+    char modelo[100];
+    float motor_cilindrada;
+    char tipo_gasolina[100];
+    int cantidad_asientos;
+    int cantidad_puertas;
+    char color[100];
+};
 
-    // Abrimos el archivo "contador.txt" en modo lectura
+// Función para obtener el valor del contador desde un archivo
+int ObtenerContador() {
     FILE *contadorArchivo = fopen("contador.txt", "r");
     if (contadorArchivo == NULL) {
-        return 0; // Si el archivo no existe, el contador se inicia en 0
+        return 0;
     }
     int contador;
-
-    // Leemos el valor del contador desde el archivo
     fscanf(contadorArchivo, "%d", &contador);
-    fclose(contadorArchivo); // Cerramos el archivo
-    return contador; // Devolvemos el valor del contador
+    fclose(contadorArchivo);
+    return contador;
 }
 
-// Funcion para actualizar el valor del contador en el archivo
+// Función para actualizar el valor del contador en el archivo
 void ActualizarContador(int nuevoContador) {
     FILE *contadorArchivo = fopen("contador.txt", "w");
-
     if (contadorArchivo == NULL) {
         printf("Error al abrir el archivo del contador.\n");
-        return; // Si no se pudo abrir el archivo, mostramos un mensaje de error y salimos de la funcion
+        return;
     }
-
-    // Escribimos el nuevo valor del contador en el archivo
     fprintf(contadorArchivo, "%d", nuevoContador);
-    fclose(contadorArchivo); // Cerramos el archivo
+    fclose(contadorArchivo);
 }
 
-// Declarar la funcion Ingresar
+// Función para ingresar un automóvil
 void Ingresar() {
     FILE *archivo = fopen("archivo.dat", "a");
     if (archivo == NULL) {
         printf("Error al abrir el archivo.\n");
         return;
     }
-    
-    // Obtener el valor actual del contador
-    int numeroFila = ObtenerContador();
 
-    // Incrementar el contador para la siguiente insercion
+    int numeroFila = ObtenerContador();
     numeroFila++;
 
-    // Declarar variables para almacenar los datos del auto
-    char marca[100], modelo[100], tipo_gasolina[100], color[100];
-    float motor_cilindrada;
-    int cantidad_asientos, cantidad_puertas;
-    
-    // Solicitar al usuario que ingrese los datos del auto
+    struct Automovil nuevoAutomovil;
+
+    nuevoAutomovil.id = numeroFila;
+
     printf("Marca: ");
-    scanf("%s", marca);
+    scanf("%s", nuevoAutomovil.marca);
     printf("Modelo: ");
-    scanf("%s", modelo);
+    scanf("%s", nuevoAutomovil.modelo);
     printf("Cilindrada de motor: ");
-    scanf("%f", &motor_cilindrada);
+    scanf("%f", &nuevoAutomovil.motor_cilindrada);
     printf("Tipo de gasolina: ");
-    scanf("%s", tipo_gasolina);
+    scanf("%s", nuevoAutomovil.tipo_gasolina);
     printf("Cantidad de asientos: ");
-    scanf("%d", &cantidad_asientos);
+    scanf("%d", &nuevoAutomovil.cantidad_asientos);
     printf("Cantidad de puertas: ");
-    scanf("%d", &cantidad_puertas);
+    scanf("%d", &nuevoAutomovil.cantidad_puertas);
     printf("Color: ");
-    scanf("%s", color);
+    scanf("%s", nuevoAutomovil.color);
 
-    // Escribir los datos del auto en el archivo en un formato especifico con el numero de fila
-    fprintf(archivo, "%d: %s-%s-%.1f-%s-%d-%d-%s\n", numeroFila, marca, modelo, motor_cilindrada, tipo_gasolina, cantidad_asientos, cantidad_puertas, color);
-    printf("Auto ingresado con exito.\n");
+    fprintf(archivo, "%d: %s-%s-%.1f-%s-%d-%d-%s\n", nuevoAutomovil.id, nuevoAutomovil.marca, nuevoAutomovil.modelo, nuevoAutomovil.motor_cilindrada, nuevoAutomovil.tipo_gasolina, nuevoAutomovil.cantidad_asientos, nuevoAutomovil.cantidad_puertas, nuevoAutomovil.color);
+    printf("Auto ingresado con éxito.\n");
 
-    // Actualizar el contador en el archivo
     ActualizarContador(numeroFila);
 
-    // Cerrar el archivo
     fclose(archivo);
 }
 
-// Funcion para abrir y mostrar el contenido de un archivo
+// Función para mostrar el contenido del archivo
 void Mostrar() {
-    // Abrir el archivo "archivo.dat" en modo lectura
     FILE *archivo = fopen("archivo.dat", "r");
     if (archivo == NULL) {
-        printf("No se pudo abrir el archivo.\n"); // Mostrar un mensaje de error si no se puede abrir el archivo
+        printf("No se pudo abrir el archivo.\n");
         return;
     }
 
     char linea[1000];
-    // Leer y mostrar cada linea del archivo
     while (fgets(linea, sizeof(linea), archivo) != NULL) {
-        printf("%s \n", linea); // Imprimir cada linea en la consola
+        printf("%s \n", linea);
     }
 
-    // Cerrar el archivo despues de leerlo
     fclose(archivo);
 }
-
 
 // Funcion para eliminar una entrada de un archivo
 void Eliminar() {
@@ -219,35 +212,6 @@ void Modificar() {
     }
 }
 
-// Funcion para cambiar el formato de separacion en el archivo
-void CambiarFormatoEnArchivo() {
-    // Abrir el archivo en modo lectura y escritura
-    FILE *archivo = fopen("archivo.dat", "r+");
-    if (archivo == NULL) {
-        printf("El archivo no se puede abrir.\n");
-        return;
-    }
-
-    char formato;
-    // Solicitar al usuario que ingrese el nuevo caracter de separacion
-    printf("Ingresa separador, '-' o '/' o ';' o ':': ");
-    scanf(" %c", &formato);
-
-    int caracter;
-    // Leer cada caracter en el archivo y reemplazar '-' o '/' por el nuevo caracter
-    while ((caracter = fgetc(archivo)) != EOF) {
-        if (caracter == '-' || caracter == '/' || caracter == ';' || caracter == ':') {
-            fseek(archivo, -1, SEEK_CUR);
-            fputc(formato, archivo);
-            fseek(archivo, 0, SEEK_CUR);
-        }
-    }
-
-    // Cerrar el archivo
-    fclose(archivo);
-    printf("Reemplazo completado.\n");
-}
-
 int main() {
     int opcion;
     do {
@@ -257,7 +221,6 @@ int main() {
         printf("2. Mostrar\n");
         printf("3. Eliminar\n");
         printf("4. Modificar\n");
-        printf("5. Cambiar separador\n");
         printf("0. Salir\n");
         printf("-------------------- CRUD DE AUTOMOVILES -------------------- \n");
         printf("Ingrese su eleccion: ");
@@ -275,9 +238,6 @@ int main() {
                 break;
             case 4:
                 Modificar();
-                break;
-            case 5:
-                CambiarFormatoEnArchivo();
                 break;
             case 0:
                 printf("Saliendo del programa.\n");
