@@ -1,6 +1,7 @@
-#include <stdio.h>
+#include <iostream>
+#include <fstream>
 
-// Definición de la estructura para representar un automóvil
+// Definicion de la estructura para representar un automovil
 struct Automovil {
     int id;
     char marca[100];
@@ -12,34 +13,34 @@ struct Automovil {
     char color[100];
 };
 
-// Función para obtener el valor del contador desde un archivo
+// Funcion para obtener el valor del contador desde un archivo
 int ObtenerContador() {
-    FILE *contadorArchivo = fopen("contador.txt", "r");
-    if (contadorArchivo == NULL) {
+    std::ifstream contadorArchivo("contador.txt");
+    if (!contadorArchivo.is_open()) {
         return 0;
     }
     int contador;
-    fscanf(contadorArchivo, "%d", &contador);
-    fclose(contadorArchivo);
+    contadorArchivo >> contador;
+    contadorArchivo.close();
     return contador;
 }
 
-// Función para actualizar el valor del contador en el archivo
+// Funcion para actualizar el valor del contador en el archivo
 void ActualizarContador(int nuevoContador) {
-    FILE *contadorArchivo = fopen("contador.txt", "w");
-    if (contadorArchivo == NULL) {
-        printf("Error al abrir el archivo del contador.\n");
+    std::ofstream contadorArchivo("contador.txt");
+    if (!contadorArchivo.is_open()) {
+        std::cout << "Error al abrir el archivo del contador." << std::endl;
         return;
     }
-    fprintf(contadorArchivo, "%d", nuevoContador);
-    fclose(contadorArchivo);
+    contadorArchivo << nuevoContador;
+    contadorArchivo.close();
 }
 
-// Función para ingresar un automóvil
+// Funcion para ingresar un automovil
 void Ingresar() {
-    FILE *archivo = fopen("archivo.dat", "a");
-    if (archivo == NULL) {
-        printf("Error al abrir el archivo.\n");
+    std::ofstream archivo("archivo.bin", std::ios::binary | std::ios::app);
+    if (!archivo.is_open()) {
+        std::cout << "Error al abrir el archivo." << std::endl;
         return;
     }
 
@@ -50,181 +51,169 @@ void Ingresar() {
 
     nuevoAutomovil.id = numeroFila;
 
-    printf("Marca: ");
-    scanf("%s", nuevoAutomovil.marca);
-    printf("Modelo: ");
-    scanf("%s", nuevoAutomovil.modelo);
-    printf("Cilindrada de motor: ");
-    scanf("%f", &nuevoAutomovil.motor_cilindrada);
-    printf("Tipo de gasolina: ");
-    scanf("%s", nuevoAutomovil.tipo_gasolina);
-    printf("Cantidad de asientos: ");
-    scanf("%d", &nuevoAutomovil.cantidad_asientos);
-    printf("Cantidad de puertas: ");
-    scanf("%d", &nuevoAutomovil.cantidad_puertas);
-    printf("Color: ");
-    scanf("%s", nuevoAutomovil.color);
+    std::cout << "Marca: ";
+    std::cin >> nuevoAutomovil.marca;
+    std::cout << "Modelo: ";
+    std::cin >> nuevoAutomovil.modelo;
+    std::cout << "Cilindrada de motor: ";
+    std::cin >> nuevoAutomovil.motor_cilindrada;
+    std::cout << "Tipo de gasolina: ";
+    std::cin >> nuevoAutomovil.tipo_gasolina;
+    std::cout << "Cantidad de asientos: ";
+    std::cin >> nuevoAutomovil.cantidad_asientos;
+    std::cout << "Cantidad de puertas: ";
+    std::cin >> nuevoAutomovil.cantidad_puertas;
+    std::cout << "Color: ";
+    std::cin >> nuevoAutomovil.color;
 
-    fprintf(archivo, "%d: %s-%s-%.1f-%s-%d-%d-%s\n", nuevoAutomovil.id, nuevoAutomovil.marca, nuevoAutomovil.modelo, nuevoAutomovil.motor_cilindrada, nuevoAutomovil.tipo_gasolina, nuevoAutomovil.cantidad_asientos, nuevoAutomovil.cantidad_puertas, nuevoAutomovil.color);
-    printf("Auto ingresado con éxito.\n");
+    archivo.write(reinterpret_cast<char*>(&nuevoAutomovil), sizeof(Automovil));
+    std::cout << "Auto ingresado con exito." << std::endl;
 
     ActualizarContador(numeroFila);
 
-    fclose(archivo);
+    archivo.close();
 }
 
-// Función para mostrar el contenido del archivo
+// Funcion para mostrar el contenido del archivo
 void Mostrar() {
-    FILE *archivo = fopen("archivo.dat", "r");
-    if (archivo == NULL) {
-        printf("No se pudo abrir el archivo.\n");
+    std::ifstream archivo("archivo.bin", std::ios::binary);
+    if (!archivo.is_open()) {
+        std::cout << "No se pudo abrir el archivo." << std::endl;
         return;
     }
 
-    char linea[1000];
-    while (fgets(linea, sizeof(linea), archivo) != NULL) {
-        printf("%s \n", linea);
+    struct Automovil automovil;
+
+    while (archivo.read(reinterpret_cast<char*>(&automovil), sizeof(Automovil))) {
+        std::cout << "ID: " << automovil.id << ", Marca: " << automovil.marca << ", Modelo: " << automovil.modelo
+                  << ", Cilindrada: " << automovil.motor_cilindrada << ", Gasolina: " << automovil.tipo_gasolina
+                  << ", Asientos: " << automovil.cantidad_asientos << ", Puertas: " << automovil.cantidad_puertas
+                  << ", Color: " << automovil.color << std::endl;
     }
 
-    fclose(archivo);
+    archivo.close();
 }
 
 // Funcion para eliminar una entrada de un archivo
 void Eliminar() {
-    // Abrir el archivo original en modo lectura
-    FILE *archivoLectura = fopen("archivo.dat", "r");
-    if (archivoLectura == NULL) {
-        printf("No se pudo abrir el archivo para lectura.\n"); // Mostrar un mensaje de error si no se puede abrir el archivo
+    std::ifstream archivoEntrada("archivo.bin", std::ios::binary);
+    if (!archivoEntrada.is_open()) {
+        std::cout << "No se pudo abrir el archivo para lectura." << std::endl;
         return;
     }
 
-    // Abrir un archivo temporal en modo escritura
-    FILE *archivoTemporal = fopen("temporal.dat", "w");
-    if (archivoTemporal == NULL) {
-        printf("No se pudo abrir el archivo temporal.\n"); // Mostrar un mensaje de error si no se puede abrir el archivo temporal
-        fclose(archivoLectura); // Cerrar el archivo original si no se puede abrir el archivo temporal
-        return;
+    struct Automovil automovil;
+    std::cout << "Lista de automoviles:" << std::endl;
+
+    while (archivoEntrada.read(reinterpret_cast<char*>(&automovil), sizeof(Automovil))) {
+        std::cout << "ID: " << automovil.id << ", Marca: " << automovil.marca << ", Modelo: " << automovil.modelo
+                  << ", Cilindrada: " << automovil.motor_cilindrada << ", Gasolina: " << automovil.tipo_gasolina
+                  << ", Asientos: " << automovil.cantidad_asientos << ", Puertas: " << automovil.cantidad_puertas
+                  << ", Color: " << automovil.color << std::endl;
     }
+
+    archivoEntrada.close();
 
     int idAEliminar;
-    printf("ID a eliminar: ");
-    scanf("%d", &idAEliminar);
+    std::cout << "Ingrese el ID del automovil que desea eliminar: ";
+    std::cin >> idAEliminar;
 
-    int idAutomovil;
-    char linea[1000]; // Suponemos que cada linea en el archivo tiene un maximo de 1000 caracteres
+    std::ifstream archivoEntrada2("archivo.bin", std::ios::binary);
+    if (!archivoEntrada2.is_open()) {
+        std::cout << "No se pudo abrir el archivo para lectura." << std::endl;
+        return;
+    }
 
-    while (fgets(linea, sizeof(linea), archivoLectura) != NULL) {
-        sscanf(linea, "%d", &idAutomovil);
+    std::ofstream archivoTemporal("temporal.bin", std::ios::binary);
+    if (!archivoTemporal.is_open()) {
+        std::cout << "No se pudo abrir el archivo temporal." << std::endl;
+        archivoEntrada2.close();
+        return;
+    }
 
-        if (idAutomovil == idAEliminar) {
-            printf("El automovil con el ID %d ha sido eliminado.\n", idAEliminar); // Mostrar un mensaje de confirmacion de eliminacion
+    while (archivoEntrada2.read(reinterpret_cast<char*>(&automovil), sizeof(Automovil))) {
+        if (automovil.id != idAEliminar) {
+            archivoTemporal.write(reinterpret_cast<char*>(&automovil), sizeof(Automovil));
         } else {
-            fprintf(archivoTemporal, "%s", linea); // Escribir la linea en el archivo temporal si no se debe eliminar
+            std::cout << "El automovil con el ID " << idAEliminar << " ha sido eliminado." << std::endl;
         }
     }
 
-    // Cerrar los archivos
-    fclose(archivoLectura);
-    fclose(archivoTemporal);
+    archivoEntrada2.close();
+    archivoTemporal.close();
 
-    // Eliminar el archivo original
-    if (remove("archivo.dat") != 0) {
-        printf("Error al eliminar el archivo original.\n"); // Mostrar un mensaje de error si no se puede eliminar el archivo original
+    if (remove("archivo.bin") != 0) {
+        std::cout << "Error al eliminar el archivo original." << std::endl;
         return;
     }
 
-    // Renombrar el archivo temporal
-    if (rename("temporal.dat", "archivo.dat") != 0) {
-        printf("Error al renombrar el archivo temporal.\n"); // Mostrar un mensaje de error si no se puede renombrar el archivo temporal
+    if (rename("temporal.bin", "archivo.bin") != 0) {
+        std::cout << "Error al renombrar el archivo temporal." << std::endl;
         return;
     }
 }
 
-
 // Funcion para modificar un automovil por su ID
 void Modificar() {
-    FILE *archivoLectura = fopen("archivo.dat", "r");
-    if (archivoLectura == NULL) {
-        printf("No se pudo abrir el archivo para lectura.\n");
-        return;
-    }
-
-    FILE *archivoTemporal = fopen("temporal.dat", "w");
-    if (archivoTemporal == NULL) {
-        printf("No se pudo abrir el archivo temporal.\n");
-        fclose(archivoLectura); // Cerrar el archivo de lectura si no se pudo abrir el temporal
-        return;
-    }
-
     int idAModificar;
-    printf("Ingrese el ID del automovil que desea modificar: ");
-    scanf("%d", &idAModificar);
+    std::cout << "Ingrese el ID del automovil que desea modificar: ";
+    std::cin >> idAModificar;
 
-    int idAutomovil;
-    char linea[1000];
+    std::fstream archivo("archivo.bin", std::ios::binary | std::ios::in | std::ios::out);
+    if (!archivo.is_open()) {
+        std::cout << "No se pudo abrir el archivo para lectura/escritura." << std::endl;
+        return;
+    }
 
-    while (fgets(linea, sizeof(linea), archivoLectura) != NULL) {
-        sscanf(linea, "%d", &idAutomovil);
+    Automovil automovil;
 
-        if (idAutomovil == idAModificar) {
-            printf("Automovil con el ID %d.\n", idAModificar);
+    while (archivo.read(reinterpret_cast<char*>(&automovil), sizeof(Automovil))) {
+        if (automovil.id == idAModificar) {
+            std::cout << "Automovil con el ID " << idAModificar << "." << std::endl;
 
             // Solicitar al usuario que ingrese los datos modificados
-            char marca[100], modelo[100], tipo_gasolina[100], color[100];
-            float motor_cilindrada;
-            int cantidad_asientos, cantidad_puertas;
+            std::cout << "Nueva Marca: ";
+            std::cin >> automovil.marca;
+            std::cout << "Nuevo Modelo: ";
+            std::cin >> automovil.modelo;
+            std::cout << "Nueva Cilindrada de motor: ";
+            std::cin >> automovil.motor_cilindrada;
+            std::cout << "Nuevo Tipo de gasolina: ";
+            std::cin >> automovil.tipo_gasolina;
+            std::cout << "Nueva Cantidad de asientos: ";
+            std::cin >> automovil.cantidad_asientos;
+            std::cout << "Nueva Cantidad de puertas: ";
+            std::cin >> automovil.cantidad_puertas;
+            std::cout << "Nuevo Color: ";
+            std::cin >> automovil.color;
 
-            printf("Nueva Marca: ");
-            scanf("%s", marca);
-            printf("Nuevo Modelo: ");
-            scanf("%s", modelo);
-            printf("Nueva Cilindrada de motor: ");
-            scanf("%f", &motor_cilindrada);
-            printf("Nuevo Tipo de gasolina: ");
-            scanf("%s", tipo_gasolina);
-            printf("Nueva Cantidad de asientos: ");
-            scanf("%d", &cantidad_asientos);
-            printf("Nueva Cantidad de puertas: ");
-            scanf("%d", &cantidad_puertas);
-            printf("Nuevo Color: ");
-            scanf("%s", color);
+            // Colocar el puntero de lectura/escritura en la posición correcta
+            archivo.seekp(-static_cast<int>(sizeof(Automovil)), std::ios::cur);
 
-            // Escribir los datos modificados en el archivo temporal
-            fprintf(archivoTemporal, "%d: %s-%s-%.1f-%s-%d-%d-%s\n", idAModificar, marca, modelo, motor_cilindrada, tipo_gasolina, cantidad_asientos, cantidad_puertas, color);
-            printf("Automovil modificado con exito.\n");
-        } else {
-            // Si no es el automovil a modificar, simplemente copiar la linea al archivo temporal
-            fprintf(archivoTemporal, "%s", linea);
+            // Escribir los datos modificados en el archivo
+            archivo.write(reinterpret_cast<char*>(&automovil), sizeof(Automovil));
+
+            std::cout << "Automovil modificado con exito." << std::endl;
+            break;
         }
     }
 
-    fclose(archivoLectura);
-    fclose(archivoTemporal);
-
-    if (remove("archivo.dat") != 0) {
-        printf("Error al eliminar el archivo original.\n");
-        return;
-    }
-
-    if (rename("temporal.dat", "archivo.dat") != 0) {
-        printf("Error al renombrar el archivo temporal.\n");
-        return;
-    }
+    archivo.close();
 }
 
 int main() {
     int opcion;
     do {
-        printf("-------------------- CRUD DE AUTOMOVILES --------------------");
-        printf("\nMenu de opciones:\n");
-        printf("1. Ingresar\n");
-        printf("2. Mostrar\n");
-        printf("3. Eliminar\n");
-        printf("4. Modificar\n");
-        printf("0. Salir\n");
-        printf("-------------------- CRUD DE AUTOMOVILES -------------------- \n");
-        printf("Ingrese su eleccion: ");
-        scanf("%d", &opcion);
+        std::cout << "-------------------- CRUD DE AUTOMOVILES --------------------" << std::endl;
+        std::cout << "Menu de opciones:" << std::endl;
+        std::cout << "1. Ingresar" << std::endl;
+        std::cout << "2. Mostrar" << std::endl;
+        std::cout << "3. Eliminar" << std::endl;
+        std::cout << "4. Modificar" << std::endl;
+        std::cout << "0. Salir" << std::endl;
+        std::cout << "-------------------- CRUD DE AUTOMOVILES --------------------" << std::endl;
+        std::cout << "Ingrese su eleccion: ";
+        std::cin >> opcion;
 
         switch (opcion) {
             case 1:
@@ -240,12 +229,16 @@ int main() {
                 Modificar();
                 break;
             case 0:
-                printf("Saliendo del programa.\n");
+                std::cout << "Saliendo del programa." << std::endl;
                 break;
             default:
-                printf("Opcion invalida.\n");
+                std::cout << "Opcion invalida." << std::endl;
         }
     } while (opcion != 0);
 
     return 0;
 }
+
+
+//se compila -> g++ main.cpp -o main.exe
+//luego -> main.exe
