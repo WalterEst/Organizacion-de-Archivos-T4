@@ -38,7 +38,10 @@ void ActualizarContador(int nuevoContador) {
 
 // Funcion para ingresar un automovil
 void Ingresar() {
+    // Abrir el archivo binario en modo de escritura binaria (append)
     std::ofstream archivo("archivo.bin", std::ios::binary | std::ios::app);
+    
+    // Verificar si el archivo se abrió correctamente
     if (!archivo.is_open()) {
         std::cout << "Error al abrir el archivo." << std::endl;
         return;
@@ -81,7 +84,9 @@ void Ingresar() {
 
 // Funcion para mostrar el contenido del archivo
 void Mostrar() {
+    // Abrir el archivo binario en modo de lectura binaria
     std::ifstream archivo("archivo.bin", std::ios::binary);
+    // Verificar si el archivo se abrió correctamente
     if (!archivo.is_open()) {
         std::cout << "No se pudo abrir el archivo." << std::endl;
         return;
@@ -225,11 +230,11 @@ void Modificar() {
     archivo.close();
 }
 
-// Función principal
+// Funcion principal
 int main() {
     int opcion;
     do {
-        // Menú de opciones
+        // Menu de opciones
         std::cout << "-------------------- CRUD DE AUTOMOVILES --------------------" << std::endl;
         std::cout << "Menu de opciones:" << std::endl;
         std::cout << "1. Ingresar" << std::endl;
