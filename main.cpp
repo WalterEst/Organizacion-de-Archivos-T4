@@ -44,13 +44,15 @@ void Ingresar() {
         return;
     }
 
+    // Obtener el numero de fila actual
     int numeroFila = ObtenerContador();
     numeroFila++;
 
+    // Crear una nueva instancia de Automovil
     struct Automovil nuevoAutomovil;
-
     nuevoAutomovil.id = numeroFila;
 
+    // Solicitar informacion al usuario y asignarla al nuevoAutomovil
     std::cout << "Marca: ";
     std::cin >> nuevoAutomovil.marca;
     std::cout << "Modelo: ";
@@ -66,11 +68,14 @@ void Ingresar() {
     std::cout << "Color: ";
     std::cin >> nuevoAutomovil.color;
 
+    // Escribir el nuevoAutomovil en el archivo binario
     archivo.write(reinterpret_cast<char*>(&nuevoAutomovil), sizeof(Automovil));
     std::cout << "Auto ingresado con exito." << std::endl;
 
+    // Actualizar el contador en el archivo
     ActualizarContador(numeroFila);
 
+    // Cerrar el archivo
     archivo.close();
 }
 
@@ -82,8 +87,10 @@ void Mostrar() {
         return;
     }
 
+    // Crear una instancia de Automovil para almacenar la informacion leida
     struct Automovil automovil;
 
+    // Leer y mostrar cada Automovil en el archivo binario
     while (archivo.read(reinterpret_cast<char*>(&automovil), sizeof(Automovil))) {
         std::cout << "ID: " << automovil.id << ", Marca: " << automovil.marca << ", Modelo: " << automovil.modelo
                   << ", Cilindrada: " << automovil.motor_cilindrada << ", Gasolina: " << automovil.tipo_gasolina
@@ -91,20 +98,24 @@ void Mostrar() {
                   << ", Color: " << automovil.color << std::endl;
     }
 
+    // Cerrar el archivo
     archivo.close();
 }
 
 // Funcion para eliminar una entrada de un archivo
 void Eliminar() {
+    // Abrir el archivo de entrada para lectura
     std::ifstream archivoEntrada("archivo.bin", std::ios::binary);
     if (!archivoEntrada.is_open()) {
         std::cout << "No se pudo abrir el archivo para lectura." << std::endl;
         return;
     }
 
+    // Crear una instancia de Automovil para almacenar la informacion leida
     struct Automovil automovil;
     std::cout << "Lista de automoviles:" << std::endl;
 
+    // Mostrar la lista de automoviles
     while (archivoEntrada.read(reinterpret_cast<char*>(&automovil), sizeof(Automovil))) {
         std::cout << "ID: " << automovil.id << ", Marca: " << automovil.marca << ", Modelo: " << automovil.modelo
                   << ", Cilindrada: " << automovil.motor_cilindrada << ", Gasolina: " << automovil.tipo_gasolina
@@ -112,18 +123,22 @@ void Eliminar() {
                   << ", Color: " << automovil.color << std::endl;
     }
 
+    // Cerrar el archivo de entrada
     archivoEntrada.close();
 
+    // Solicitar al usuario el ID del automovil que desea eliminar
     int idAEliminar;
     std::cout << "Ingrese el ID del automovil que desea eliminar: ";
     std::cin >> idAEliminar;
 
+    // Abrir el archivo de entrada nuevamente para leer
     std::ifstream archivoEntrada2("archivo.bin", std::ios::binary);
     if (!archivoEntrada2.is_open()) {
         std::cout << "No se pudo abrir el archivo para lectura." << std::endl;
         return;
     }
 
+    // Abrir un archivo temporal para escribir
     std::ofstream archivoTemporal("temporal.bin", std::ios::binary);
     if (!archivoTemporal.is_open()) {
         std::cout << "No se pudo abrir el archivo temporal." << std::endl;
@@ -131,6 +146,7 @@ void Eliminar() {
         return;
     }
 
+    // Leer y escribir los automoviles en el archivo temporal, omitiendo el que se va a eliminar
     while (archivoEntrada2.read(reinterpret_cast<char*>(&automovil), sizeof(Automovil))) {
         if (automovil.id != idAEliminar) {
             archivoTemporal.write(reinterpret_cast<char*>(&automovil), sizeof(Automovil));
@@ -139,9 +155,11 @@ void Eliminar() {
         }
     }
 
+    // Cerrar los archivos de entrada y temporal
     archivoEntrada2.close();
     archivoTemporal.close();
 
+    // Eliminar el archivo original y renombrar el temporal
     if (remove("archivo.bin") != 0) {
         std::cout << "Error al eliminar el archivo original." << std::endl;
         return;
@@ -155,20 +173,25 @@ void Eliminar() {
 
 // Funcion para modificar un automovil por su ID
 void Modificar() {
+    // Solicitar al usuario el ID del automovil que desea modificar
     int idAModificar;
     std::cout << "Ingrese el ID del automovil que desea modificar: ";
     std::cin >> idAModificar;
 
+    // Abrir el archivo binario para lectura y escritura
     std::fstream archivo("archivo.bin", std::ios::binary | std::ios::in | std::ios::out);
     if (!archivo.is_open()) {
         std::cout << "No se pudo abrir el archivo para lectura/escritura." << std::endl;
         return;
     }
 
+    // Crear una instancia de Automovil para almacenar la informacion leida
     Automovil automovil;
 
+    // Leer y buscar el automovil con el ID a modificar
     while (archivo.read(reinterpret_cast<char*>(&automovil), sizeof(Automovil))) {
         if (automovil.id == idAModificar) {
+            // Mostrar informacion del automovil encontrado
             std::cout << "Automovil con el ID " << idAModificar << "." << std::endl;
 
             // Solicitar al usuario que ingrese los datos modificados
@@ -187,7 +210,7 @@ void Modificar() {
             std::cout << "Nuevo Color: ";
             std::cin >> automovil.color;
 
-            // Colocar el puntero de lectura/escritura en la posición correcta
+            // Colocar el puntero de lectura/escritura en la posicion correcta
             archivo.seekp(-static_cast<int>(sizeof(Automovil)), std::ios::cur);
 
             // Escribir los datos modificados en el archivo
@@ -198,12 +221,15 @@ void Modificar() {
         }
     }
 
+    // Cerrar el archivo
     archivo.close();
 }
 
+// Función principal
 int main() {
     int opcion;
     do {
+        // Menú de opciones
         std::cout << "-------------------- CRUD DE AUTOMOVILES --------------------" << std::endl;
         std::cout << "Menu de opciones:" << std::endl;
         std::cout << "1. Ingresar" << std::endl;
@@ -215,6 +241,7 @@ int main() {
         std::cout << "Ingrese su eleccion: ";
         std::cin >> opcion;
 
+        // Realizar acciones segun la opción seleccionada
         switch (opcion) {
             case 1:
                 Ingresar();
