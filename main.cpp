@@ -270,7 +270,3 @@ int main() {
 
     return 0;
 }
-
-
-//se compila -> g++ main.cpp -o main.exe
-//luego -> main.exe
