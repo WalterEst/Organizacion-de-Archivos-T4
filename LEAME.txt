@@ -1,0 +1,7 @@
+---------INSTRUCCIONES CRUD DE AUTOMÓVILES---------
+1. Abrir consola
+2. Entrar a la carpeta donde se encuentre el codigo
+3. Desde consola compilar "g++ main.cpp -o main.exe", esto generará un programa ejecutable(main.exe), un contador(contador.txt), un archivo binario(archivo.bin)
+4. Luego ejecute "main.exe"
+5. Realice las acciones posibles del CRUD de automóviles
+6. Para verificar si la información se guardó correctamente en binario, abra "archivo.bin"
